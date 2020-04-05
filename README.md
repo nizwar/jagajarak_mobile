@@ -21,6 +21,8 @@ Aplikasi mengirim notifikasi melalui perangkat pengguna ODP atau PDP, Pengguna d
 * A : Tentu saja, Bluetooth aman diaktifkan setiap saat (Terutama ketika kamu menggunakan aplikasi Jaga Jarak).
 
 ## Changelog
+- 1.1.2
+    - Bug telah diperbaiki.
 - 1.1.0
     - Menambahkan tampilan saat notifikasi ditap.
     - Wajib memulai layanan untuk mendapatkan notifikasi.

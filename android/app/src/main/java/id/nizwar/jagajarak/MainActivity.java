@@ -1,23 +1,27 @@
 package id.nizwar.jagajarak;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.onesignal.OneSignal;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;
@@ -32,8 +36,8 @@ import io.flutter.plugins.GeneratedPluginRegistrant;
 import static id.nizwar.jagajarak.BlueReceiver.FLUTTER_SHAREDPREF;
 
 public class MainActivity extends FlutterActivity {
-    private static final int REQUEST_BLUETOOTH = 2;
-    private static final int RESPONSE_BLUETOOTH_DENY = 0;
+    private static final int REQUEST_PERMISSION = 2;
+    private static final int RESPONSE_REQUEST_PERMISSION = 0;
     boolean isServicesActive = false;
 
     @Override
@@ -46,12 +50,17 @@ public class MainActivity extends FlutterActivity {
         Application application = (Application) getApplication();
 
         GeneratedPluginRegistrant.registerWith(flutterEngine);
-        requestBluetooth();
-        OneSignal.setSubscription(false);
+        requestPermission();
+        if (checkService()) {
+            OneSignal.setSubscription(true);
+        } else {
+            OneSignal.setSubscription(false);
+        }
         new EventChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), "service_stream").setStreamHandler(new EventChannel.StreamHandler() {
             @Override
             public void onListen(Object arguments, EventChannel.EventSink events) {
                 isServicesActive = checkService();
+                application.serviceStream = events;
                 if (isServicesActive) {
                     events.success("start");
                 } else {
@@ -67,8 +76,7 @@ public class MainActivity extends FlutterActivity {
         new EventChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), "os_status").setStreamHandler(new EventChannel.StreamHandler() {
             @Override
             public void onListen(Object arguments, EventChannel.EventSink events) {
-                application.notifSink = events;
-                Log.e("SINK","Terpasang" );
+                application.osStream = events;
             }
 
             @Override
@@ -127,20 +135,14 @@ public class MainActivity extends FlutterActivity {
             try {
                 Field mServiceField = bluetoothAdapter.getClass().getDeclaredField("mService");
                 mServiceField.setAccessible(true);
-
                 Object btManagerService = mServiceField.get(bluetoothAdapter);
-
                 if (btManagerService != null) {
                     bluetoothMacAddress = (String) btManagerService.getClass().getMethod("getAddress").invoke(btManagerService);
                 }
             } catch (NoSuchFieldException ignored) {
-
             } catch (NoSuchMethodException ignored) {
-
             } catch (IllegalAccessException ignored) {
-
             } catch (InvocationTargetException ignored) {
-
             }
         } else {
             bluetoothMacAddress = bluetoothAdapter.getAddress();
@@ -160,6 +162,7 @@ public class MainActivity extends FlutterActivity {
     }
 
     private void bluetoothOn(MethodChannel.Result result) {
+        if (!locationPermission()) return;
         SharedPreferences sharedPreferences = getSharedPreferences(FLUTTER_SHAREDPREF, MODE_PRIVATE);
         String mac = sharedPreferences.getString("flutter.mac_address", "");
         if (mac.length() > 0) {
@@ -175,8 +178,8 @@ public class MainActivity extends FlutterActivity {
                 startService(new Intent(this, BlueService.class));
                 Toast.makeText(this, "Layanan dimulai, mohon untuk tetap waspada.", Toast.LENGTH_SHORT).show();
             } else {
-                requestBluetooth();
-                Toast.makeText(this, "Layanan gagal dimulai, pastikan kamu mengizinkan akses Bluetooth untuk aplikasi ini.", Toast.LENGTH_SHORT).show();
+                requestPermission();
+                Toast.makeText(this, "Layanan gagal dimulai, untuk melanjutkan, pastikan kamu mengaktifkan Bluetooth.", Toast.LENGTH_SHORT).show();
                 result.success(false);
             }
         } else {
@@ -199,16 +202,55 @@ public class MainActivity extends FlutterActivity {
         });
     }
 
-    private void requestBluetooth() {
+    private void requestPermission() {
+       if (!locationPermission()) return;
         Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        startActivityForResult(enableBluetoothIntent, REQUEST_BLUETOOTH);
+        startActivityForResult(enableBluetoothIntent, REQUEST_PERMISSION);
+    }
+
+    private boolean locationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {  // Only ask for these permissions on runtime when running Android 6.0 or higher
+            if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
+                new AlertDialog.Builder(this)
+                        .setTitle("Akses Lokasi Dibutuhkan")
+                        .setMessage("Untuk mendeteksi perangkat disekitar, Aplikasi membutuhkan akses lokasi")
+                        .setOnCancelListener(dialog -> {
+                            if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(MainActivity.this,
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        REQUEST_PERMISSION);
+                            }
+                        })
+                        .setPositiveButton("Mengerti", (dialog, which) -> {
+                            if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(MainActivity.this,
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        REQUEST_PERMISSION);
+                            }
+                        }).setNegativeButton("Keluar", (dialog, which) -> {
+                            finish();
+                        })
+                        .show();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == REQUEST_PERMISSION) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+                requestPermission();
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_BLUETOOTH && resultCode == RESPONSE_BLUETOOTH_DENY) {
-            Toast.makeText(this, "Mohon aktifkan bluetooth", Toast.LENGTH_SHORT).show();
-            requestBluetooth();
+        if (requestCode == REQUEST_PERMISSION && resultCode == RESPONSE_REQUEST_PERMISSION) {
+            Toast.makeText(this, "Bluetooth dibutuhkan untuk memindai perangkat diarea sekitar.", Toast.LENGTH_SHORT).show();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

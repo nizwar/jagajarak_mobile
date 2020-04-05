@@ -28,7 +28,13 @@ public class BlueReceiver extends BroadcastReceiver {
     ArrayList<String> coveredDevices = new ArrayList<>();
     ArrayList<String> pingedDevices = new ArrayList<>();
 
+    final Application application;
+
     boolean requestFinished = true;
+
+    public BlueReceiver(Application application) {
+        this.application = application;
+    }
 
 
     @Override
@@ -40,9 +46,9 @@ public class BlueReceiver extends BroadcastReceiver {
             case BluetoothDevice.ACTION_FOUND:
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 assert device != null;
-                Log.d(TAG, device.getAddress() + "Ditemukan");
                 if (pingedDevices.contains(device.getAddress())) return;
-                coveredDevices.add(device.getAddress());
+                if (!coveredDevices.contains(device.getAddress()))
+                    coveredDevices.add(device.getAddress());
                 break;
             case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
                 if (!requestFinished) return;
@@ -56,6 +62,8 @@ public class BlueReceiver extends BroadcastReceiver {
                         break;
                     case "healthy":
                         break;
+                    default:
+                        coveredDevices.clear();
                 }
                 Log.d(TAG, "Discovery Finished");
                 break;
@@ -63,6 +71,9 @@ public class BlueReceiver extends BroadcastReceiver {
                 if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                     Toast.makeText(context, "Bluetooth mati, layanan dihentikan", Toast.LENGTH_SHORT).show();
                     context.stopService(new Intent(context, BlueService.class));
+                    if (application != null)
+                        if (application.serviceStream != null)
+                            application.serviceStream.success("stop");
                 }
                 Log.d(TAG, "State Changed");
                 break;
@@ -75,14 +86,15 @@ public class BlueReceiver extends BroadcastReceiver {
             JSONObject jsonObject = new JSONObject();
             JSONArray allDevices = new JSONArray();
             for (int i = 0; i < coveredDevices.size(); i++) {
-                allDevices.put(new JSONObject().put("field", "tag").put("key", "mac").put("value", coveredDevices.get(i)));
-                allDevices.put(new JSONObject().put("operator", "OR"));
+                allDevices.put(new JSONObject().put("field", "tag").put("key", "mac").put("relation", "=").put("value", coveredDevices.get(i)));
+                if (coveredDevices.size() > 1 && i < coveredDevices.size() - 1)
+                    allDevices.put(new JSONObject().put("operator", "OR"));
             }
             jsonObject.put("app_id", BuildConfig.OS_APPID);
             jsonObject.put("filters", allDevices);
             jsonObject.put("headings", new JSONObject().put("en", title));
             jsonObject.put("contents", new JSONObject().put("en", message));
-            jsonObject.put("data", new JSONObject().put("kondisi", kondisi ));
+            jsonObject.put("data", new JSONObject().put("kondisi", kondisi));
 
             requestFinished = false;
             Volley.newRequestQueue(context).add(new JsonObjectRequest("https://onesignal.com/api/v1/notifications", jsonObject, response -> {

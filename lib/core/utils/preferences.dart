@@ -17,7 +17,7 @@ class Preferences {
   Future saveMacBluetooth(String mac) async {
     _provider.mac = mac;
     await shared.setString("mac_address", mac);
-    SystemSettings().setupOS();
+    await SystemSettings().setupOS();
   }
 
   Future saveHealthStatus(String status) async {
@@ -35,6 +35,10 @@ class Preferences {
     await shared.setBool("service_on_start", value);
   }
 
+  Future deleteKondisi() async {
+    await shared.remove("kondisi");
+  }
+
   Future clear() async {
     await shared.clear();
     _provider.init(context);
@@ -43,6 +47,7 @@ class Preferences {
   String getMacBluetooth() => shared.getString("mac_address");
   String getHealth() => shared.getString("health");
   String getUserName() => shared.getString("username");
+  String getKondisi() => shared.getString("kondisi");
   bool getServiceOnStart() => shared.getBool("service_on_start") ?? false; 
 
   static Future<Preferences> init(BuildContext context) async {

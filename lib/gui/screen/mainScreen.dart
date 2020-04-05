@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 import 'package:jagajarak/core/utils/mainUtils.dart';
 import 'package:jagajarak/gui/screen/informasiScreen.dart';
 import 'package:jagajarak/gui/screen/page/berandaPage.dart';
@@ -12,11 +12,7 @@ class MainScreen extends StatefulWidget {
 
 class MainScreenState extends State<MainScreen> {
   int _curIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-  }
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +28,14 @@ class MainScreenState extends State<MainScreen> {
     ];
     return Scaffold(
       appBar: AppBar(
-        title: Text("Jaga Jarak",style: TextStyle(fontSize: 20), ),
+        title: Text(
+          "Jaga Jarak",
+          style: TextStyle(fontSize: 20),
+        ),
         actions: <Widget>[
           IconButton(
             tooltip: "Informasi Jaga Jarak",
-            onPressed: () { 
+            onPressed: () {
               startScreen(context, InformasiScreen());
             },
             icon: Icon(

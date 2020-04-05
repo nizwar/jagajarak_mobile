@@ -23,28 +23,7 @@ public class OnesignalNotifHandler implements OneSignal.NotificationOpenedHandle
 
     @Override
     public void notificationOpened(OSNotificationOpenResult result) {
-        if (application.notifSink != null) {
-            try {
-                @SuppressLint("CommitPrefEdits") SharedPreferences.Editor sprefEdit = application.getSharedPreferences(FLUTTER_SHAREDPREF, Context.MODE_PRIVATE).edit();
-                switch(result.notification.payload.additionalData.get("kondisi").toString()){
-                    case "odp":
-                        application.notifSink.success("odp");
-                        sprefEdit.putString("flutter.kondisi","odp");
-                        break;
-                    case "pdp":
-                        application.notifSink.success("pdp");
-                        sprefEdit.putString("flutter.kondisi","pdp");
-                        break;
-                }
-                sprefEdit.apply();
-                sprefEdit.commit();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            Log.d(TAG, "Sink not null");
-        } else {
-            Log.d(TAG, "Sink is null");
-        }
+
     }
 
 

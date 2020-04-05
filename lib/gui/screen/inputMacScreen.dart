@@ -6,37 +6,26 @@ import 'package:jagajarak/core/utils/macInput.dart';
 import 'package:jagajarak/core/utils/mainUtils.dart';
 import 'package:jagajarak/core/utils/preferences.dart';
 import 'package:jagajarak/core/utils/systemSettings.dart';
-import 'package:jagajarak/gui/components/CustomDivider.dart';
-import 'package:jagajarak/gui/screen/mainScreen.dart';
+import 'package:jagajarak/gui/components/CustomDivider.dart'; 
 import 'package:toast/toast.dart';
+import 'package:jagajarak/main.dart';
 
-class InputMacScreen extends StatefulWidget {
-  final String macAddress;
-
-  const InputMacScreen({Key key, this.macAddress}) : super(key: key);
-  @override
-  InputMacScreenState createState() => InputMacScreenState();
-}
-
-class InputMacScreenState extends State<InputMacScreen> {
+class InputMacScreen extends StatelessWidget {
   final TextEditingController _etMac = TextEditingController();
   final MacInput _macInput = MacInput();
+  final RootState rootState;
 
-  @override
-  void initState() {
-    if (widget.macAddress != null)
-      _etMac.text = widget.macAddress;
-    else
-      Bluetooth(context).getMacAddress().then((value) {
-        print("Done");
-        print(value.toString());
-        if (value != null) _etMac.text = value;
-      });
-    super.initState();
-  }
+  final String macAddress;
+  InputMacScreen({Key key, this.macAddress, this.rootState}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    if (macAddress != null)
+      _etMac.text = macAddress;
+    else
+      Bluetooth(context).getMacAddress().then((value) {
+        if (value != null) _etMac.text = value;
+      });
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -102,7 +91,7 @@ class InputMacScreenState extends State<InputMacScreen> {
                         style: TextStyle(color: Colors.white),
                       ),
                       shape: StadiumBorder(),
-                      onPressed: _simpanMac,
+                      onPressed: () => _simpanMac(context),
                     ),
                   ),
                 ],
@@ -111,7 +100,7 @@ class InputMacScreenState extends State<InputMacScreen> {
             Positioned(
               left: 10,
               top: 10,
-              child: widget.macAddress != null ? CloseButton() : Container(),
+              child: macAddress != null ? CloseButton() : Container(),
             )
           ],
         ),
@@ -119,7 +108,7 @@ class InputMacScreenState extends State<InputMacScreen> {
     );
   }
 
-  void _simpanMac() async {
+  void _simpanMac(context) async {
     if (_etMac.text.length == 17) {
       if (!(await showMessage(context, title: perhatian, message: "Apa Bluetooth MAC Address yang kamu masukan sudah benar?", actions: [
             FlatButton(
@@ -139,8 +128,8 @@ class InputMacScreenState extends State<InputMacScreen> {
 
       (await Preferences.init(context)).saveMacBluetooth(_etMac.text);
       Toast.show("Detil Mac berhasil disimpan", context, duration: 2);
-      if (widget.macAddress == null)
-        replaceScreen(context, MainScreen());
+      if (rootState != null)
+        rootState.setReady(true);
       else
         Navigator.pop(context);
     } else {

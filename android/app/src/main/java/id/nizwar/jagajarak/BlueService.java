@@ -16,11 +16,12 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class BlueService extends Service  {
+public class BlueService extends Service {
     BluetoothAdapter blueAdapter;
     final int NOTIFICATION_ID = 1;
     final String CHANNEL_ID = "JagaJarakFlutterNotificaion";
@@ -35,8 +36,8 @@ public class BlueService extends Service  {
     @Override
     public boolean onUnbind(Intent intent) {
         try {
-            unregisterReceiver(new BlueReceiver());
-        }catch (RuntimeException ignored){
+            unregisterReceiver(new BlueReceiver((Application) getApplication()));
+        } catch (RuntimeException ignored) {
         }
         return super.onUnbind(intent);
     }
@@ -44,8 +45,8 @@ public class BlueService extends Service  {
     @Override
     public void onDestroy() {
         try {
-            unregisterReceiver(new BlueReceiver());
-        }catch (RuntimeException ignored){
+            unregisterReceiver(new BlueReceiver((Application) getApplication()));
+        } catch (RuntimeException ignored) {
         }
         super.onDestroy();
     }
@@ -57,13 +58,12 @@ public class BlueService extends Service  {
             Toast.makeText(this, "Bluetooth mati, layanan dihentikan", Toast.LENGTH_SHORT).show();
             stopService(intent);
         }
-
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        registerReceiver(new BlueReceiver(), filter);
+        registerReceiver(new BlueReceiver((Application)getApplication()), filter);
         startForeground(intent);
         return super.onStartCommand(intent, flags, startId);
     }
@@ -74,12 +74,12 @@ public class BlueService extends Service  {
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this, 0, notificationIntent, 0
         );
-
         if (blueAdapter == null) {
             Toast.makeText(this, "Bluetooth mati, layanan dihentikan", Toast.LENGTH_SHORT).show();
+            Application application = (Application) getApplication();
+            if (application.serviceStream != null) application.serviceStream.success("stop");
             stopService(intent);
         }
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, CHANNEL_ID, NotificationManager.IMPORTANCE_DEFAULT);
@@ -93,13 +93,18 @@ public class BlueService extends Service  {
                             .setSmallIcon(R.drawable.ic_logo)
                             .setContentText(getString(R.string.app_name) + " - Layanan sedang berjalan")
                             .setContentIntent(pendingIntent)
-                            .build()
-            );
+                            .build());
         }
-        scheduleTaskExecutor.scheduleAtFixedRate(this::nearbyDevice, 0, 30, TimeUnit.SECONDS);
+        scheduleTaskExecutor.scheduleAtFixedRate(this::nearbyDevice, 5, 60, TimeUnit.SECONDS);
     }
 
     private void nearbyDevice() {
+        try {
+            Method method;
+            method = blueAdapter.getClass().getMethod("setScanMode", int.class, int.class);
+            method.invoke(blueAdapter, BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE, 120);
+        } catch (Exception ignored) {
+        }
         if (blueAdapter.isDiscovering()) {
             blueAdapter.cancelDiscovery();
         }
