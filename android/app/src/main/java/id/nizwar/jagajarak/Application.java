@@ -20,6 +20,7 @@ import static id.nizwar.jagajarak.BlueReceiver.FLUTTER_SHAREDPREF;
 public class Application extends FlutterApplication implements PluginRegistrantCallback {
     EventChannel.EventSink osStream;
     EventChannel.EventSink serviceStream;
+    EventChannel.EventSink locSignalStream;
 
     @Override
     public void registerWith(PluginRegistry registry) {

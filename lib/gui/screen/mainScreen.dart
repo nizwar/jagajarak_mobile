@@ -3,6 +3,7 @@ import 'package:jagajarak/core/utils/mainUtils.dart';
 import 'package:jagajarak/gui/screen/informasiScreen.dart';
 import 'package:jagajarak/gui/screen/page/berandaPage.dart';
 import 'package:jagajarak/gui/screen/page/pengaturanPage.dart';
+import 'package:jagajarak/gui/screen/page/riwayatPage.dart';
 import 'package:line_icons/line_icons.dart';
 
 class MainScreen extends StatefulWidget {
@@ -12,7 +13,6 @@ class MainScreen extends StatefulWidget {
 
 class MainScreenState extends State<MainScreen> {
   int _curIndex = 0;
- 
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +22,12 @@ class MainScreenState extends State<MainScreen> {
         page: BerandaPage(),
       ),
       BottomNav(
-        bottomNavItem: BottomNavigationBarItem(icon: Icon(LineIcons.gear), title: Text("Pengaturan")),
-        page: PengaturanPage(),
+        bottomNavItem: BottomNavigationBarItem(icon: SizedBox(height: 40, child: CircleAvatar(child: Icon(LineIcons.qrcode))), title: Container()),
+        page: BerandaPage(),
+      ),
+      BottomNav(
+        bottomNavItem: BottomNavigationBarItem(icon: Icon(LineIcons.users), title: Text("Catatan")),
+        page: RiwayatPage(),
       ),
     ];
     return Scaffold(
@@ -48,11 +52,14 @@ class MainScreenState extends State<MainScreen> {
       ),
       body: _listBottomNav[_curIndex].page,
       bottomNavigationBar: BottomNavigationBar(
-        elevation: 0,
+        elevation: 10,
         items: _listBottomNav.map((item) => item.bottomNavItem).toList(),
         currentIndex: _curIndex,
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         onTap: (index) => setState(() {
+          if (index == 1) {
+            return;
+          }
           _curIndex = index;
         }),
       ),

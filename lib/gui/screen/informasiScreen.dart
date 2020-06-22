@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
+import 'package:jagajarak/core/provider/ServiceProvider.dart';
 import 'package:jagajarak/core/res/string.dart';
 import 'package:jagajarak/core/utils/services.dart';
 import 'package:jagajarak/gui/components/CustomDivider.dart';
+import 'package:provider/provider.dart';
 
 class InformasiScreen extends StatefulWidget {
   @override
@@ -22,6 +24,7 @@ class _InformasiScreenState extends State<InformasiScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ServiceProvider serviceProvider = Provider.of<ServiceProvider>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -65,7 +68,7 @@ class _InformasiScreenState extends State<InformasiScreen> {
                   "Cara Menggunakan!",
                   informasi1,
                   StreamBuilder(
-                    stream: Services(context).streamServiceStatus(),
+                    stream: serviceProvider.service(),
                     initialData: "stop",
                     builder: (context, snapshot) {
                       return FlatButton(
@@ -78,7 +81,7 @@ class _InformasiScreenState extends State<InformasiScreen> {
                         color: (snapshot.data ?? "stop") == "stop" ? Theme.of(context).primaryColor : Colors.grey.shade400,
                         onPressed: (snapshot.data ?? "stop")== "stop"
                             ? () async {
-                                await Services(context).startService();
+                                await Services.startService();
                                 setState(() {});
                               }
                             : null,

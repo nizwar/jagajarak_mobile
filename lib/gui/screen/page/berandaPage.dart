@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jagajarak/core/provider/ServiceProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:jagajarak/core/provider/DeviceProvider.dart';
 import 'package:jagajarak/core/res/string.dart';
@@ -31,10 +32,12 @@ class _BerandaPageState extends State<BerandaPage> {
         ),
       );
     }
+ 
     return body;
   }
 
   Widget _body(DeviceProvider provider, BuildContext context) {
+    ServiceProvider serviceProvider = Provider.of<ServiceProvider>(context);
     String health = (provider.health ?? "healthy").toLowerCase();
     Color bgHealthColor = Colors.grey;
     String peringatan = healthMsg;
@@ -124,7 +127,7 @@ class _BerandaPageState extends State<BerandaPage> {
           space: 40,
         ),
         StreamBuilder(
-          stream: Services(context).streamServiceStatus(),
+          stream: serviceProvider.service(),
           initialData: "stop",
           builder: (context, snapshot) {
             return Column(
@@ -144,9 +147,9 @@ class _BerandaPageState extends State<BerandaPage> {
                     ),
                     onPressed: () async {
                       if ((snapshot.data ?? "stop") == "stop") {
-                        await Services(context).startService();
+                        await Services.startService();
                       } else {
-                        await Services(context).stopService();
+                        await Services.stopService();
                       }
                       setState(() {});
                     },

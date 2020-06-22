@@ -56,6 +56,19 @@ public class MainActivity extends FlutterActivity {
         } else {
             OneSignal.setSubscription(false);
         }
+
+        new EventChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), "locsignal_stream").setStreamHandler(new EventChannel.StreamHandler() {
+            @Override
+            public void onListen(Object arguments, EventChannel.EventSink events) {
+                application.locSignalStream = events;
+            }
+
+            @Override
+            public void onCancel(Object arguments) {
+
+            }
+        });
+
         new EventChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), "service_stream").setStreamHandler(new EventChannel.StreamHandler() {
             @Override
             public void onListen(Object arguments, EventChannel.EventSink events) {
@@ -105,6 +118,9 @@ public class MainActivity extends FlutterActivity {
                             Toast.makeText(this, "Layanan dihentikan", Toast.LENGTH_SHORT).show();
                             result.success(true);
                             OneSignal.setSubscription(false);
+                            break;
+                        case "toast":
+                            Toast.makeText(this, call.arguments.toString(), Toast.LENGTH_SHORT).show();
                             break;
                     }
                 });
@@ -203,7 +219,7 @@ public class MainActivity extends FlutterActivity {
     }
 
     private void requestPermission() {
-       if (!locationPermission()) return;
+        locationPermission();
         Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         startActivityForResult(enableBluetoothIntent, REQUEST_PERMISSION);
     }
@@ -228,8 +244,8 @@ public class MainActivity extends FlutterActivity {
                                         REQUEST_PERMISSION);
                             }
                         }).setNegativeButton("Keluar", (dialog, which) -> {
-                            finish();
-                        })
+                    finish();
+                })
                         .show();
                 return false;
             }

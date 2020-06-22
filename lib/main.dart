@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:jagajarak/core/provider/DeviceProvider.dart';
 import 'package:jagajarak/core/res/warna.dart';
-import 'package:jagajarak/core/utils/services.dart';  
+import 'package:jagajarak/core/utils/services.dart';
+import 'core/provider/ServiceProvider.dart';
 import 'core/utils/mainUtils.dart';
 import 'core/utils/preferences.dart';
 import 'gui/screen/alertScreen.dart';
@@ -15,8 +16,15 @@ main() {
   Provider.debugCheckInvalidValueType = null;
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
-    Provider(
-      create: (context) => DeviceProvider(),
+    MultiProvider(
+      providers: [
+        Provider(
+          create: (context) => DeviceProvider(),
+        ),
+        Provider(
+          create: (context) => ServiceProvider(),
+        ),
+      ],
       child: MaterialApp(
         title: "Jaga Jarak",
         debugShowCheckedModeBanner: false,
@@ -43,17 +51,15 @@ class RootState extends State<Root> {
   bool _initialized = false;
   bool _ready = false;
 
-  StreamController _osStream = StreamController();
 
   @override
   void didChangeDependencies() {
-    _initEverything(); 
+    _initEverything();
     super.didChangeDependencies();
   }
 
   @override
   void dispose() {
-    _osStream.close();
     super.dispose();
   }
 
@@ -92,8 +98,6 @@ class RootState extends State<Root> {
 
   Future _initEverything() async {
     var provider = Provider.of<DeviceProvider>(context, listen: false);
-    await Future.delayed(Duration(seconds: 2));
-
     //Kondisi
     Preferences preferences = await Preferences.init(context);
     String kondisi = preferences.getKondisi();
@@ -102,13 +106,12 @@ class RootState extends State<Root> {
       await preferences.deleteKondisi();
     }
 
-
     await provider.init(context);
     if ((provider.mac != null) && (provider.startServiceOnStart ?? false)) {
-      await Services(context).startService();
+      await Services.startService();
     }
 
-    await _initStream();
+    _initStream();
 
     setState(() {
       _ready = provider.mac != null;
@@ -134,15 +137,43 @@ class RootState extends State<Root> {
               subtitle: "Perhatian!, Pasien dalam perawatan (PDP) terdeteksi berada disekitarmu, Bersegeralah untuk meninggalkan Area!",
             ));
         break;
-    } 
+    }
   }
 
-  Future _initStream() async {
+  Future _initStream() {
+    ServiceProvider serviceProvider = Provider.of<ServiceProvider>(context, listen: false);
+    serviceProvider.oneSignalService().listen(_oneSignalCallback);
+    serviceProvider.locationService().listen(_locSignalCallback);
+  }
+
+  void _oneSignalCallback(signal) async {
     Preferences preferences = await Preferences.init(context);
-    _osStream.stream.listen((event) {
-      showAlert(event);
-      preferences.deleteKondisi();
-    });
-    _osStream.addStream(EventChannel("os_status").receiveBroadcastStream());
+    showAlert(signal);
+    preferences.deleteKondisi();
+  }
+
+  void _locSignalCallback(signal) async {
+    Preferences preferences = await Preferences.init(context);
+    try {
+      if (signal != null) {
+        if (signal == 1) {
+          Geolocator geoLoc = Geolocator();
+          if (!(await geoLoc.isLocationServiceEnabled())) {
+            Services.stopService();
+            Services.showToast("Tidak bisa melanjutkan layanan sebab Layanan lokasi dimatikan");
+          }
+
+          var lastLoc = preferences.getMyLastLocation();
+          var nowLoc = await geoLoc.getCurrentPosition();
+          var distance = await geoLoc.distanceBetween(nowLoc.latitude, nowLoc.longitude, lastLoc.latitude, lastLoc.longitude);
+
+          if (distance > 5.6) {
+            preferences.saveMyLastLocation(nowLoc.latitude, nowLoc.longitude);
+            Services.showToast("5 Meter tercapai, Disini upload lokasi baru");
+            //Todo: Tambahkan fungsi upload lokasi disini
+          }
+        }
+      }
+    } catch (e) {}
   }
 }

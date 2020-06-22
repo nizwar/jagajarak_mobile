@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -19,10 +18,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-
-import static android.content.ContentValues.TAG;
-
 public class BlueReceiver extends BroadcastReceiver {
     static final String FLUTTER_SHAREDPREF = "FlutterSharedPreferences";
     ArrayList<String> coveredDevices = new ArrayList<>();
@@ -65,7 +60,7 @@ public class BlueReceiver extends BroadcastReceiver {
                     default:
                         coveredDevices.clear();
                 }
-                Log.d(TAG, "Discovery Finished");
+                getLocationSignal();
                 break;
             case BluetoothAdapter.ACTION_STATE_CHANGED:
                 if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
@@ -75,9 +70,12 @@ public class BlueReceiver extends BroadcastReceiver {
                         if (application.serviceStream != null)
                             application.serviceStream.success("stop");
                 }
-                Log.d(TAG, "State Changed");
                 break;
         }
+    }
+
+    public void getLocationSignal() { //Memberi sinyal ke flutter untuk mengambil lokasi terbaru
+        application.locSignalStream.success(1);
     }
 
     public void sendNotif(final Context context, String title, String message, String kondisi) {

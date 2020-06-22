@@ -6,6 +6,7 @@ class DeviceProvider extends ChangeNotifier {
   String mac;
   String health;
   String userName;
+  String noHp;
   // bool service = false;
   bool startServiceOnStart = false;
 
@@ -16,6 +17,7 @@ class DeviceProvider extends ChangeNotifier {
     health = preferences.getHealth() ?? "healthy";
     mac = preferences.getMacBluetooth();
     userName = preferences.getUserName();
+    noHp = preferences.getNoHp();
     startServiceOnStart = preferences.getServiceOnStart();
 
     if (mac != null) SystemSettings().setupOS();
