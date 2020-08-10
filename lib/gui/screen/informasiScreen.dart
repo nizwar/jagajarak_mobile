@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
-import 'package:jagajarak/core/res/string.dart';
-import 'package:jagajarak/core/utils/services.dart';
+import 'package:jagajarak/core/res/string.dart'; 
 import 'package:jagajarak/gui/components/CustomDivider.dart';
 
 class InformasiScreen extends StatefulWidget {
@@ -60,32 +59,29 @@ class _InformasiScreenState extends State<InformasiScreen> {
                   });
               },
               children: <Widget>[
-                _page(
-                  "assets/images/illustration/1.png",
-                  "Cara Menggunakan!",
-                  informasi1,
-                  StreamBuilder(
-                    stream: Services(context).streamServiceStatus(),
-                    initialData: "stop",
-                    builder: (context, snapshot) {
-                      return FlatButton(
-                        shape: StadiumBorder(),
-                        disabledColor: Colors.grey,
-                        child: Text(
-                          "Mulai Layanan Sekarang!",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        color: (snapshot.data ?? "stop") == "stop" ? Theme.of(context).primaryColor : Colors.grey.shade400,
-                        onPressed: (snapshot.data ?? "stop")== "stop"
-                            ? () async {
-                                await Services(context).startService();
-                                setState(() {});
-                              }
-                            : null,
-                      );
-                    },
-                  ),
-                ),
+                _page("assets/images/illustration/1.png", "Cara Menggunakan!", informasi1, null
+                    // StreamBuilder(
+                    //   stream: Services(context).streamServiceStatus(),
+                    //   initialData: "stop",
+                    //   builder: (context, snapshot) {
+                    //     return FlatButton(
+                    //       shape: StadiumBorder(),
+                    //       disabledColor: Colors.grey,
+                    //       child: Text(
+                    //         "Mulai Layanan Sekarang!",
+                    //         style: TextStyle(color: Colors.white),
+                    //       ),
+                    //       color: (snapshot.data ?? "stop") == "stop" ? Theme.of(context).primaryColor : Colors.grey.shade400,
+                    //       onPressed: (snapshot.data ?? "stop")== "stop"
+                    //           ? () async {
+                    //               await Services(context).startService();
+                    //               setState(() {});
+                    //             }
+                    //           : null,
+                    //     );
+                    //   },
+                    // ),
+                    ),
                 _page("assets/images/illustration/2.png", "Dapatkan Notifikasi", informasi2, null),
                 _page("assets/images/illustration/3.png", "Tenang Saja", informasi3, null),
                 _page("assets/images/illustration/4.png", "Privasi Untuk Kamu", informasi4, null),

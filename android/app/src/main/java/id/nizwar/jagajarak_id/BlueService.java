@@ -1,4 +1,4 @@
-package id.nizwar.jagajarak;
+package id.nizwar.jagajarak_id;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -63,17 +63,14 @@ public class BlueService extends Service {
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        registerReceiver(new BlueReceiver((Application)getApplication()), filter);
+        registerReceiver(new BlueReceiver((Application) getApplication()), filter);
         startForeground(intent);
         return super.onStartCommand(intent, flags, startId);
     }
 
-
     private void startForeground(Intent intent) {
         Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                this, 0, notificationIntent, 0
-        );
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         if (blueAdapter == null) {
             Toast.makeText(this, "Bluetooth mati, layanan dihentikan", Toast.LENGTH_SHORT).show();
             Application application = (Application) getApplication();
@@ -87,14 +84,14 @@ public class BlueService extends Service {
             notificationChannel.setSound(null, null);
             assert notificationManager != null;
             notificationManager.createNotificationChannel(notificationChannel);
-            startForeground(
-                    NOTIFICATION_ID, new NotificationCompat.Builder(this, CHANNEL_ID)
-                            .setOngoing(true)
-                            .setSmallIcon(R.drawable.ic_logo)
-                            .setContentText(getString(R.string.app_name) + " - Layanan sedang berjalan")
-                            .setContentIntent(pendingIntent)
-                            .build());
         }
+        startForeground(NOTIFICATION_ID, new NotificationCompat.Builder(this, CHANNEL_ID)
+                        .setOngoing(true)
+                        .setSmallIcon(R.drawable.ic_logo)
+                        .setContentText(getString(R.string.app_name) + " - Layanan sedang berjalan")
+                        .setContentIntent(pendingIntent)
+                        .build());
+
         scheduleTaskExecutor.scheduleAtFixedRate(this::nearbyDevice, 5, 60, TimeUnit.SECONDS);
     }
 

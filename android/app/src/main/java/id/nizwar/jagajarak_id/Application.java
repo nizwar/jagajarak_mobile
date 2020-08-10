@@ -1,10 +1,13 @@
-package id.nizwar.jagajarak;
+package id.nizwar.jagajarak_id;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.multidex.MultiDex;
+
+import com.google.firebase.FirebaseApp;
 import com.onesignal.OneSignal;
 
 import org.json.JSONException;
@@ -15,7 +18,7 @@ import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.PluginRegistrantCallback;
 
 import static android.content.ContentValues.TAG;
-import static id.nizwar.jagajarak.BlueReceiver.FLUTTER_SHAREDPREF;
+import static id.nizwar.jagajarak_id.BlueReceiver.FLUTTER_SHAREDPREF;
 
 public class Application extends FlutterApplication implements PluginRegistrantCallback {
     EventChannel.EventSink osStream;
@@ -28,6 +31,8 @@ public class Application extends FlutterApplication implements PluginRegistrantC
 
     @Override
     public void onCreate() {
+        FirebaseApp.initializeApp(this);
+        MultiDex.install(this);
         OneSignal.startInit(this)
                 .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
                 .unsubscribeWhenNotificationsAreDisabled(true)

@@ -1,4 +1,4 @@
-package id.nizwar.jagajarak;
+package id.nizwar.jagajarak_id;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -33,7 +33,7 @@ import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 
-import static id.nizwar.jagajarak.BlueReceiver.FLUTTER_SHAREDPREF;
+import static id.nizwar.jagajarak_id.BlueReceiver.FLUTTER_SHAREDPREF;
 
 public class MainActivity extends FlutterActivity {
     private static final int REQUEST_PERMISSION = 2;

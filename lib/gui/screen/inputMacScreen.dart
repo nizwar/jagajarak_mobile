@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jagajarak/core/provider/UserProvider.dart';
 import 'package:jagajarak/core/res/string.dart';
 import 'package:jagajarak/core/res/warna.dart';
 import 'package:jagajarak/core/utils/bluetooth.dart';
@@ -6,7 +7,8 @@ import 'package:jagajarak/core/utils/macInput.dart';
 import 'package:jagajarak/core/utils/mainUtils.dart';
 import 'package:jagajarak/core/utils/preferences.dart';
 import 'package:jagajarak/core/utils/systemSettings.dart';
-import 'package:jagajarak/gui/components/CustomDivider.dart'; 
+import 'package:jagajarak/gui/components/CustomDivider.dart';
+import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
 import 'package:jagajarak/main.dart';
 
@@ -109,6 +111,7 @@ class InputMacScreen extends StatelessWidget {
   }
 
   void _simpanMac(context) async {
+    UserProvider userProvider = Provider.of(context, listen: false);
     if (_etMac.text.length == 17) {
       if (!(await showMessage(context, title: perhatian, message: "Apa Bluetooth MAC Address yang kamu masukan sudah benar?", actions: [
             FlatButton(
@@ -126,12 +129,17 @@ class InputMacScreen extends StatelessWidget {
           ])) ??
           false) return;
 
+      userProvider.getUser.reference.updateData({
+        "mac_bluetooth": _etMac.text,
+      });
+      
       (await Preferences.init(context)).saveMacBluetooth(_etMac.text);
       Toast.show("Detil Mac berhasil disimpan", context, duration: 2);
-      if (rootState != null)
+      if (rootState != null) {
         rootState.setReady(true);
-      else
+      } else {
         Navigator.pop(context);
+      }
     } else {
       showMessage(context, title: perhatian, message: "Sepertinya MAC Addressmu tidak valid.");
       return;

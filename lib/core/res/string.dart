@@ -12,6 +12,6 @@ const String informasiJagaJarak = "Tap tombol 'Mulai Layanan' disaat kamu hendak
     "Jika kamu termasuk ODP atau PDP, Aplikasi ini akan memberikan notifikasi orang-orang sekitarmu berupa arahan untuk menjauh atau menjaga jarak dengan siapa saja 'Tanpa memberitahu tentang kondisimu'.\n\n" +
     "Aplikasi tidak mengambil, mengirim, mengubah atau menambah data pribadi siapapun, Data yang terkait dengan aplikasi ini hanya tersimpan di smartphonemu, 'Hanya Kamu yang bisa melihatnya', Data-data tersebut akan ikut terhapus saat kamu uninstall aplikasi ini.\n\n" +
     "Jangan lupa ajak teman-temanmu menginstall Aplikasi Jaga Jarak, Semakin banyak yang menginstall, Semakin kamu bisa lebih waspada.\n\n";
-const String shareTextJagaJarak = "Mari menjadi bagian penmencegahan penyebaran Covid-19. Install aplikasi Jaga Jarak sekarang untuk mendapatkan Informasi OPD dan PDP disekitarmu.";
+const String shareTextJagaJarak = "Mari menjadi bagian pencegahan penyebaran Penyakit. Install aplikasi Jaga Jarak sekarang untuk mendapatkan Informasi OPD dan PDP disekitarmu.";
 const String informasiMacBluetooth =
     "Dengan teknologi bluetooth, Aplikasi Jaga Jarak mampu memindai area disekitarmu, Jika terdeteksi pengguna aplikasi JagaJarak yang menjadi ODP atau PDP, kamu akan mendapatkan notifikasi untuk segera menjauh atau menjaga jarak aman dengan orang lain.\n\nKamu hanya akan mendapatkan Notifikasi jika kamu menuliskan Bluetooth MAC Address-mu dengan benar.";

@@ -1,4 +1,4 @@
-package id.nizwar.jagajarak;
+package id.nizwar.jagajarak_id;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;

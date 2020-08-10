@@ -15,76 +15,72 @@ class PengaturanPage extends StatefulWidget {
 class _PengaturanPageState extends State<PengaturanPage> {
   @override
   Widget build(BuildContext context) {
-    DeviceProvider provider = Provider.of(context);
-    return ListView(
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(left: 18, top: 20),
-          child: Row(
-            children: <Widget>[
-              Text(
-                "Umum",
-                style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+    return Consumer<DeviceProvider>(
+      builder: (context, value, child) { 
+        return ListView(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(left: 18, top: 20),
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    "Umum",
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                  ),
+                  RowDivider(),
+                  Expanded(
+                    child: Divider(),
+                  )
+                ],
               ),
-              RowDivider(),
-              Expanded(
-                child: Divider(),
-              )
-            ],
-          ),
-        ),
-        Consumer<DeviceProvider>(
-          builder: (context, provider, child) {
-            return ListTile(
+            ),
+            ListTile(
               title: Text("Nama Kamu"),
-              subtitle: Text(provider.userName != null ? (provider.userName.trim().length > 0 ? provider.userName.trim() : "Anonim") : "Anonim"),
+              subtitle: Text(value.getUserName?.trim() ?? "Anonim"),
               onTap: () async {
-                _changName(provider);
+                _changName(value);
               },
-            );
-          },
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 18, top: 20),
-          child: Row(
-            children: <Widget>[
-              Text(
-                "Sistem",
-                style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 18, top: 20),
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    "Sistem",
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                  ),
+                  RowDivider(),
+                  Expanded(
+                    child: Divider(),
+                  )
+                ],
               ),
-              RowDivider(),
-              Expanded(
-                child: Divider(),
-              )
-            ],
-          ),
-        ),
-        Consumer<DeviceProvider>(
-          builder: (context, provider, child) {
-            return ListTile(
+            ),
+            ListTile(
               title: Text("MAC Address"),
-              subtitle: Text(provider.mac),
+              subtitle: Text(value.mac),
               onTap: () async {
                 await startScreen(
                   context,
                   InputMacScreen(
-                    macAddress: provider.mac,
+                    macAddress: value.getMac,
                   ),
                 );
+                setState(() {});
               },
-            );
-          },
-        ),
-        SwitchListTile(
-          title: Text("Layanan Saat Dijalankan"),
-          subtitle: Text("Layanan otomatis dijalankan saat kamu membuka aplikasi."),
-          value: provider.startServiceOnStart,
-          onChanged: (value) async {
-            await (await Preferences.init(context)).saveServiceOnStart(value); 
-            setState(() {});
-          },
-        )
-      ],
+            ),
+            SwitchListTile(
+              title: Text("Layanan Saat Dijalankan"),
+              subtitle: Text("Layanan otomatis dijalankan saat kamu membuka aplikasi."),
+              value: value.startServiceOnStart,
+              onChanged: (value) async {
+                await (await Preferences.init(context)).saveServiceOnStart(value);
+                setState(() {});
+              },
+            )
+          ],
+        );
+      },
     );
   }
 

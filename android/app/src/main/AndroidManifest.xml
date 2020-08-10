@@ -1,20 +1,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="id.nizwar.jagajarak">
+    package="id.nizwar.jagajarak_id">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
-        android:name="id.nizwar.jagajarak.Application"
+        android:name="id.nizwar.jagajarak_id.Application"
         android:label="Jaga Jarak"
         android:icon="@mipmap/ic_launcher"
         tools:ignore="AllowBackup">
         <activity
-            android:name="id.nizwar.jagajarak.MainActivity"
+            android:name="id.nizwar.jagajarak_id.MainActivity"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
@@ -28,7 +29,7 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <service android:name="id.nizwar.jagajarak.BlueService"/>
+        <service android:name="id.nizwar.jagajarak_id.BlueService"/>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

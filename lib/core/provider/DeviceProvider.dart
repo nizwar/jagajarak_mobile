@@ -9,7 +9,26 @@ class DeviceProvider extends ChangeNotifier {
   // bool service = false;
   bool startServiceOnStart = false;
 
+  String get getMac => mac;
+  String get getHealth => health;
+  String get getUserName => userName;
+
   DeviceProvider({this.mac, this.health, this.userName});
+
+  void setMac(String value) {
+    this.mac = value;
+    notifyListeners();
+  }
+
+  void setHealth(String value) {
+    this.health = value;
+    notifyListeners();
+  }
+
+  void setUsername(String value) {
+    this.userName = value;
+    notifyListeners();
+  }
 
   Future<DeviceProvider> init(BuildContext context) async {
     Preferences preferences = await Preferences.init(context);
@@ -21,7 +40,6 @@ class DeviceProvider extends ChangeNotifier {
     if (mac != null) SystemSettings().setupOS();
 
     notifyListeners();
-
     return DeviceProvider(mac: mac, health: health, userName: userName);
   }
 }

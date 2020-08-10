@@ -3,7 +3,11 @@ import 'package:jagajarak/core/utils/mainUtils.dart';
 import 'package:jagajarak/gui/screen/informasiScreen.dart';
 import 'package:jagajarak/gui/screen/page/berandaPage.dart';
 import 'package:jagajarak/gui/screen/page/pengaturanPage.dart';
+import 'package:jagajarak/gui/screen/qrScannerScreen.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:ndialog/ndialog.dart';
+
+import 'myQrScreen.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -12,7 +16,6 @@ class MainScreen extends StatefulWidget {
 
 class MainScreenState extends State<MainScreen> {
   int _curIndex = 0;
- 
 
   @override
   Widget build(BuildContext context) {
@@ -34,14 +37,45 @@ class MainScreenState extends State<MainScreen> {
         ),
         actions: <Widget>[
           IconButton(
-            tooltip: "Informasi Jaga Jarak",
+            tooltip: "Pemindaian",
+            icon: Icon(
+              LineIcons.qrcode,
+              color: Colors.white,
+            ),
             onPressed: () {
-              startScreen(context, InformasiScreen());
+              NAlertDialog(
+                title: Text("Pilih Aksi"),
+                dialogStyle: DialogStyle(
+                  titleDivider: true,
+                ),
+                content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    FlatButton(
+                        onPressed: () {
+                          startScreen(context, QRScannerScreen());
+                        },
+                        child: Text("Pindai kode QR")),
+                    FlatButton(
+                        onPressed: () {
+                          startScreen(context, MyQRScreen());
+                        },
+                        child: Text("Kode QR saya")),
+                  ],
+                ),
+              ).show(context);
             },
+          ),
+          IconButton(
+            tooltip: "Informasi Jaga Jarak",
             icon: Icon(
               LineIcons.question_circle,
               color: Colors.white,
             ),
+            onPressed: () {
+              startScreen(context, InformasiScreen());
+            },
           ),
         ],
         elevation: 0,

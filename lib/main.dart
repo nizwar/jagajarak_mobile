@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:jagajarak/gui/screen/loginScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:jagajarak/core/provider/DeviceProvider.dart';
 import 'package:jagajarak/core/res/warna.dart';
-import 'package:jagajarak/core/utils/services.dart';  
+import 'package:jagajarak/core/utils/services.dart';
+import 'core/provider/UserProvider.dart';
 import 'core/utils/mainUtils.dart';
 import 'core/utils/preferences.dart';
 import 'gui/screen/alertScreen.dart';
@@ -15,8 +17,11 @@ main() {
   Provider.debugCheckInvalidValueType = null;
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
-    Provider(
-      create: (context) => DeviceProvider(),
+    MultiProvider(
+      providers: [
+        Provider(create: (context) => DeviceProvider()),
+        Provider(create: (context) => UserProvider()),
+      ],
       child: MaterialApp(
         title: "Jaga Jarak",
         debugShowCheckedModeBanner: false,
@@ -47,7 +52,7 @@ class RootState extends State<Root> {
 
   @override
   void didChangeDependencies() {
-    _initEverything(); 
+    _initEverything();
     super.didChangeDependencies();
   }
 
@@ -61,13 +66,23 @@ class RootState extends State<Root> {
   Widget build(BuildContext context) {
     Widget body = _splashWidget();
     if (_initialized) {
-      if (_ready) {
-        body = MainScreen();
-      } else {
-        body = InputMacScreen(
-          rootState: this,
-        );
-      }
+      return Consumer<UserProvider>(
+        builder: (context, value, child) {
+          if (value.isLogedIn ?? false) {
+            if (_ready) {
+              return MainScreen();
+            } else {
+              return InputMacScreen(
+                rootState: this,
+              );
+            }
+          } else {
+            return LoginScreen(
+              state: this,
+            );
+          }
+        },
+      );
     }
     return body;
   }
@@ -91,27 +106,28 @@ class RootState extends State<Root> {
   }
 
   Future _initEverything() async {
-    var provider = Provider.of<DeviceProvider>(context, listen: false);
+    var deviceProvider = Provider.of<DeviceProvider>(context, listen: false);
+    var userProvider = Provider.of<UserProvider>(context, listen: false);
     await Future.delayed(Duration(seconds: 2));
 
-    //Kondisi
     Preferences preferences = await Preferences.init(context);
-    String kondisi = preferences.getKondisi();
-    if (kondisi != null) {
-      showAlert(kondisi);
-      await preferences.deleteKondisi();
+    if (preferences.getToken() != null) {
+      await userProvider.initUser(context);
+      String kondisi = await preferences.getKondisi();
+      if (kondisi != null) { 
+        await preferences.deleteKondisi();
+      }
     }
 
-
-    await provider.init(context);
-    if ((provider.mac != null) && (provider.startServiceOnStart ?? false)) {
+    await deviceProvider.init(context);
+    if ((deviceProvider.mac != null) && (deviceProvider.startServiceOnStart ?? false)) {
       await Services(context).startService();
     }
 
     await _initStream();
 
     setState(() {
-      _ready = provider.mac != null;
+      _ready = deviceProvider.mac != null;
       _initialized = true;
     });
   }
@@ -134,7 +150,7 @@ class RootState extends State<Root> {
               subtitle: "Perhatian!, Pasien dalam perawatan (PDP) terdeteksi berada disekitarmu, Bersegeralah untuk meninggalkan Area!",
             ));
         break;
-    } 
+    }
   }
 
   Future _initStream() async {

@@ -63,13 +63,13 @@ class _LaporScreenState extends State<LaporScreen> {
                 _template(
                   "assets/images/illustration/odp.png",
                   "Orang Dalam Pengawasan",
-                  "Saya menyatakan bahwa saya berada dikondisi Orang Dalam Pengawasan (ODP) Covid19.",
+                  "Saya menyatakan bahwa saya berada dikondisi Orang Dalam Pengawasan (ODP).",
                   Theme.of(context).accentColor,
                 ),
                 _template(
                   "assets/images/illustration/pdp.png",
                   "Pasien Dalam Perawatan",
-                  "Saya menyatakan bahwa saya berada dikondisi Pasien Dalam Perawatan (PDP) Covid19.",
+                  "Saya menyatakan bahwa saya berada dikondisi Pasien Dalam Perawatan (PDP).",
                   Colors.red,
                 ),
               ],

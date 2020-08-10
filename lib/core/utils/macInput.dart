@@ -44,22 +44,16 @@ class MacInput {
   void macChange(String text, TextEditingController et) {
     String cleanMac = clearNonMacCharacters(text.toUpperCase());
     String formatMac = formatMacAddress(cleanMac);
-    int selectionStart = et.selection.start;
+    int selectionStart = et.selection.end;
     formatMac = handleColonDeletion(text, formatMac, selectionStart);
     int lengthDiff = formatMac.length - cleanMac.length;
     setMacEdit(cleanMac, formatMac, selectionStart, lengthDiff, et);
   }
 
-  void setMacEdit(String cleanMac, String formattedMac, int start, int length, TextEditingController _etmac) {
-    // _etmac.removeListener(() {});
-    if (cleanMac.length <= 12) {
-      _etmac.text = formattedMac;
-      _etmac.selection = TextSelection.fromPosition(TextPosition(offset: _etmac.text.length));
-      mPreviousMac = formattedMac;
-    } else {
-      _etmac.text = formattedMac;
-      _etmac.selection = TextSelection.fromPosition(TextPosition(offset: mPreviousMac.length));
-    }
-    // _etmac.addListener(() => macChange(_etmac.text, _etmac));
+  void setMacEdit(String cleanMac, String formattedMac, int start, int length, TextEditingController _etmac) async {
+    if (cleanMac.length <= 12) mPreviousMac = formattedMac;
+    if (_etmac.text.length > 2) _etmac.text = formattedMac;
+    await Future.delayed(Duration(microseconds: 100));
+    _etmac.selection = TextSelection.fromPosition(TextPosition(offset: _etmac.text.length, affinity: TextAffinity.upstream));
   }
 }

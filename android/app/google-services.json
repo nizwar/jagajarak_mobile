@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "57134319713",
+    "firebase_url": "https://jaga-jarak-id.firebaseio.com",
+    "project_id": "jaga-jarak-id",
+    "storage_bucket": "jaga-jarak-id.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:57134319713:android:4b2a10d1dfb923872d0220",
+        "android_client_info": {
+          "package_name": "id.nizwar.jagajarak_id"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "57134319713-aa3bvn9j3ulra75iastoj223fel7r8rv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "id.nizwar.jagajarak_id",
+            "certificate_hash": "7dfab4ea8ab138191526bdb8efee023c2a144200"
+          }
+        },
+        {
+          "client_id": "57134319713-b70cvf5q6vvq7mpv19lh4v57jcpe1om9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAud8P26E0qTpfspyLrmtMr9BeGxEy2_8Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "57134319713-b70cvf5q6vvq7mpv19lh4v57jcpe1om9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
