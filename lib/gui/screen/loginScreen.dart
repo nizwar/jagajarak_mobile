@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -136,18 +138,33 @@ class _LoginScreenState extends State<LoginScreen> {
         timeout: Duration(minutes: 1),
         verificationCompleted: (phoneAuthCredential) async {
           progressDialog.dismiss();
-          await _submitOTP(phoneAuthCredential);
-          setState(() {});
+          var resp = await _submitOTP(phoneAuthCredential);
+          if (resp ?? false) {
+            Navigator.pop(context);
+          }
           widget.state.setState(() {});
         },
         verificationFailed: (error) {
           progressDialog.dismiss();
+          NAlertDialog(
+            title: Text("Peringatan"),
+            content: Text(error.message),
+            actions: [
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("Close"),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+              )
+            ],
+          ).show(context);
         },
         codeSent: (verificationId, [forceResendingToken]) async {
           progressDialog.dismiss();
           final TextEditingController _etOTP = TextEditingController();
           final FocusNode focusNode = FocusNode();
-          var resp = await NAlertDialog(
+          await NAlertDialog(
             title: Row(
               children: <Widget>[
                 Expanded(child: Text("Konfirmasi")),
@@ -184,7 +201,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (value.trim() == "") return Toast.show("Masukan OTP untuk melanjutkan", context);
                     AuthCredential authCredential = PhoneAuthProvider.getCredential(verificationId: verificationId, smsCode: value.trim());
                     var resp = await _submitOTP(authCredential);
-
                     Navigator.pop(context, resp ?? false);
                   },
                   controller: _etOTP,
@@ -219,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
               )
             ],
           ).show(context);
-          if (resp ?? false) widget.state.setState(() {});
+          widget.state.setState(() {});
         },
         codeAutoRetrievalTimeout: (verificationId) {},
       )
@@ -238,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
       title: Text("Mengirim Informasi"),
       message: Text("Tunggu Sebentar..."),
     ).catchError((error) async {
-      print(error);
+      log(error.toString());
       if (error.code == "ERROR_INVALID_VERIFICATION_CODE") {
         await NAlertDialog(
           title: Text("Terjadi Galat"),
@@ -274,19 +290,27 @@ class _LoginScreenState extends State<LoginScreen> {
         "nohp": resp.user.phoneNumber,
         "status": "sehat",
       });
+      UserProvider userProvider = Provider.of(context, listen: false);
+      userProvider.setUser(
+        context,
+        User(
+          token: resp.user.uid,
+          nohp: resp.user.phoneNumber,
+          status: "sehat",
+        ),
+      );
+    } else {
+      UserProvider userProvider = Provider.of(context, listen: false);
+      userProvider.setUser(
+        context,
+        User(
+          token: resp.user.uid,
+          nohp: cekPengguna?.data["nohp"] ?? "Tidak Tersedia",
+          status: cekPengguna?.data["status"] ?? "Sehat",
+        ),
+      );
     }
 
-    UserProvider userProvider = Provider.of(context, listen: false);
-    userProvider.setUser(
-      context,
-      User(
-        token: resp.user.uid,
-        nohp: cekPengguna?.data["nohp"] ?? "Tidak Tersedia",
-        status: cekPengguna?.data["status"] ?? "Sehat",
-      ),
-    );
-
-    setState(() {});
     return true;
   }
 }

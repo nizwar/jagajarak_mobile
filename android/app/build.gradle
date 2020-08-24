@@ -54,11 +54,11 @@ android {
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "OS_APPID", osProperties.getProperty("OSAPPID"))
-        buildConfigField("String", "OS_SECRET", osProperties.getProperty("OSSECRETKEY"))
+        buildConfigField("String", "OS_APPID", "\"5dbd6a95-a5ca-4ff0-a51e-3e8145eb9594\"")
+        buildConfigField("String", "OS_SECRET", "\"MjQ2ZGIxYTAtMWM1NC00OTJiLThjOGEtY2Q5MTUzOWVmYjRm\"")
 
         manifestPlaceholders = [
-                onesignal_app_id: osProperties.getProperty("OSAPPID2"),
+                onesignal_app_id: "5dbd6a95-a5ca-4ff0-a51e-3e8145eb9594",
                 onesignal_google_project_number: 'REMOTE'
         ]
     }

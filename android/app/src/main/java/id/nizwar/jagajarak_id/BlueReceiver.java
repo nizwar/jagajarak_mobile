@@ -9,6 +9,8 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -98,10 +100,13 @@ public class BlueReceiver extends BroadcastReceiver {
 
             requestFinished = false;
             Volley.newRequestQueue(context).add(new JsonObjectRequest("https://onesignal.com/api/v1/notifications", jsonObject, response -> {
+                Log.d(TAG, response.toString());
                 pingedDevices.addAll(coveredDevices);
                 coveredDevices.clear();
                 requestFinished = true;
-            }, null) {
+            }, error -> {
+                Log.d(TAG, new String(error.networkResponse.data));
+            }) {
                 @Override
                 public Map<String, String> getHeaders() {
                     Map<String, String> header = new HashMap<>();
